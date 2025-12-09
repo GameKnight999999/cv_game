@@ -1,0 +1,1 @@
+SAMPLES_PATH = "poses"
