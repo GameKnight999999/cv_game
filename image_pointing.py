@@ -1,10 +1,13 @@
-import pygame, os, json
+import pygame, os, json, math
 
 def save() -> None:
-    json.dump(points, open(f"{os.path.splitext(filenames[cur])[0]}.json", 'wt'))
+    out = []
+    for i in (1, 2, 3, 4, 6, 7, 8, 9):
+        out.append(math.atan2(points[i][1] - points[i - 1][1], points[i][0] - points[i - 1][0]))
+    json.dump(out, open(f"{os.path.splitext(filenames[cur])[0]}.json", 'wt'))
 
 
-dir = input("Input images dir: ")
+dir = "poses"
 os.chdir(dir)
 img = []
 filenames = os.listdir(".")
