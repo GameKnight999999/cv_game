@@ -16,4 +16,4 @@ def check_sample(pose: Sequence, sample: Sequence) -> float:
         a %= 2 * math.pi
         b %= 2 * math.pi
         cost += (math.pi - abs(abs(a - b) - math.pi)) ** 2
-    return math.exp(-cost * 0.3)
+    return math.exp(-cost * 5e-2)
