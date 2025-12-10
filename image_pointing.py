@@ -34,6 +34,8 @@ while running:
         save()
         cur += 1
         points = []
+    if cur >= len(img):
+        break
 
     screen.fill(0)
     screen.blit(img[cur], (0, 0))
