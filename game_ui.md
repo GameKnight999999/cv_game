@@ -8,7 +8,7 @@
 - *Animation*
 
 ## 2. Settings menu
-*after 'START' is pressed*
+*after 'SETTINGS' is pressed*
 - 'TIMER DURATION: < 15 SECONDS >'
 - 'DEFAULT NUMBER OF PLAYERS: < 4 >'
 - 'DEFAULT GAME MODE: < 5 ROUNDS >'
