@@ -138,6 +138,18 @@ class Button:
                 self.action()
         self.listener = add_event_listener(pygame.MOUSEBUTTONDOWN, callback)
 
+
+    def render(self) -> None:
+        """
+        Render the button to the screen
+        """
+        pass
+
+
+    def __del__(self) -> None:
+        remove_event_listener(self.listener)
+
+
 def handle_events():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
