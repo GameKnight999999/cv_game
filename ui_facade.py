@@ -1,4 +1,6 @@
 import pygame
+from event_handler import *
+from typing import Callable
 # setup
 pygame.init()
 screen = pygame.display.set_mode((1580, 820))
@@ -93,26 +95,15 @@ class Font:
         self.timer_start_time = None
 
 class Button:
-    def __init__(self, text: str, action: str = 'menu', position: set = (0, 0)) -> None:
+    def __init__(self, text: str, action: Callable, x: int, y: int, width: int, height: int) -> None:
         self.text = text
         self.action = action
-        self.x, self.y = position
-
-    def act(self) -> None:
-        global status_index, round_num
-        if self.action == 'menu':
-            status_index = 0
-        elif self.action == 'set':
-            status_index = 1
-        elif self.action == 'instr':
-            status_index = 2
-        elif self.action == 'game set':
-            status_index = 3
-        elif self.action == 'end':
-            status_index = 4
-        else:
-            status_index = 5
-            round_num = self.action.split()[1]
+        self.x, self.y = x, y
+        self.width, self.height = width, height
+        def callback(e: pygame.event.Event):
+            if 0 < e.pos[0] - x < self.width and 0 < e.pos[1] - x < self.height:
+                self.action()
+        self.listener = add_event_listener(pygame.MOUSEBUTTONDOWN, callback)
 
 def handle_events():
     for event in pygame.event.get():
