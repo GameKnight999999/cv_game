@@ -11,7 +11,12 @@ round_index = 0
 status_num = 0
 
 # image loading function
-def load_image(name, colorkey=None):
+def load_image(name):
+    """
+    loads an image
+    Args:
+        name: the name of an image in the 'images' folder
+    """
     fullname = 'images/' + name
     try:
         image = pygame.image.load(fullname)
@@ -22,7 +27,9 @@ def load_image(name, colorkey=None):
 
 
 class Font:
-    "class font, functions -- print_text(Text, symbol_size), prints out the given text, timer(start_time, symbol_size) -- create a timer (still in progress)"
+    """
+    A font class, which can print out a text and start a timer
+    """
     def __init__(self) -> None:
         self.available_symbols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
                              'S', 'T',
@@ -39,6 +46,14 @@ class Font:
         self.timer_start_time = None
 
     def print_text(self, text: str, symbol_size: set) -> None:
+        """
+        Prints the given text on the screen and writes not available symbols in a file
+        Args:
+            text: the text that will be printed out
+            symbol_size: the size of each symbol in pixels, a set with two variables: width and height
+        Returns:
+            A string containing the greeting message.
+        """
         #basic stuff -- getting symbol size, the max amount of symbols the screen can fit, turning text into capitals, setting symbol index to 0
         symbol_width, symbol_height = symbol_size
         line_max_symbols = screen_width // symbol_width - 1
@@ -85,16 +100,34 @@ class Font:
         if message:
             print('Some of symbols in your text are not available yet, check out the file')
 
-    def start_timer(self, start_time, symbol_size) -> None:
+    def start_timer(self, start_time) -> None:
+        """
+        Starts a decreasing timer
+        Args:
+            start_time: Timer's starting time in seconds.
+        """
         self.seconds = [str(sec) for sec in range(0, start_time + 1)]
         self.timer_running = True
 
     def end_timer(self) -> None:
+        """
+        Ends the timer
+        """
         self.timer_running = False
         self.seconds = []
         self.timer_start_time = None
 
 class Button:
+    """
+    Starts a decreasing timer
+    Attributes:
+        text: The text of the button
+        action: callback funtion to call on click
+        x: x coord of left-top corner of the button
+        y: y coord of left-top corner of the button
+        width: width of the button
+        height: height of the button
+    """
     def __init__(self, text: str, action: Callable, x: int, y: int, width: int, height: int) -> None:
         self.text = text
         self.action = action
@@ -110,7 +143,7 @@ def handle_events():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_e:
+            if event.key == pygame.K_RETURN:
                 pass
 
 def Main_Menu():
