@@ -2,7 +2,7 @@ import pygame
 import time
 from typing import Callable
 
-__any__ = ["tick", "add_event_listener"]
+__any__ = ["tick", "add_event_listener", "remove_event_listener"]
 
 last_call = None
 listeners = []
@@ -54,3 +54,13 @@ def add_event_listener(eventtype: pygame.event._EventTypes, callback: Callable) 
     """
     listeners.append(Listener(eventtype, callback))
     return listeners[-1]
+
+
+def remove_event_listener(listener: Listener) -> None:
+    """
+    Remove listener so it won't get events anymore
+    
+    :param listener: Type of events listen to
+    :type listener: Listener
+    """
+    listeners.remove(listener)
