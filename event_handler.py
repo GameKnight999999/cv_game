@@ -61,7 +61,7 @@ def remove_event_listener(listener: Listener) -> None:
     """
     Remove listener so it won't get events anymore
     
-    :param listener: Type of events listen to
+    :param listener: Listener object as listener identifier
     :type listener: Listener
     """
     listeners.remove(listener)
