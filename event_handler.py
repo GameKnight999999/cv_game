@@ -28,9 +28,10 @@ def tick(fps: float = -1) -> float:
     :return: Returns time left from last call (in milliseconds).
     :rtype: float
     """
-    for l in listeners:
-        for e in pygame.event.get(l.eventtype):
-            l.call(e)
+    for e in pygame.event.get():
+        for l in listeners:
+            if e.type == l.eventtype or e.type in l.eventtype:
+                l.call(e)
     if fps > 0:
         time.sleep(1 / fps)
     now = time.time() * 1e3
