@@ -9,7 +9,7 @@ listeners = []
 
 
 class Listener:
-    def __init__(self, eventtype: pygame.event._EventTypes, callback: Callable) -> None:
+    def __init__(self, eventtype, callback: Callable) -> None:
         self.eventtype = eventtype
         self.callback = callback
     
@@ -42,7 +42,7 @@ def tick(fps: float = -1) -> float:
     return dt
 
 
-def add_event_listener(eventtype: pygame.event._EventTypes, callback: Callable) -> Listener:
+def add_event_listener(eventtype, callback: Callable) -> Listener:
     """
     Add listener for any pygame events
     
