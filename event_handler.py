@@ -30,7 +30,7 @@ def tick(fps: float = -1) -> float:
     global last_call
     for e in pygame.event.get():
         for l in listeners:
-            if e.type == l.eventtype or e.type in l.eventtype:
+            if (type(l.eventtype) == int and e.type == l.eventtype) or (type(l.eventtype) != int and e.type in l.eventtype):
                 l.call(e)
     if fps > 0:
         time.sleep(1 / fps)
