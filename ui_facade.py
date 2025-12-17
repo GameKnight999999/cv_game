@@ -1,3 +1,8 @@
+"""
+    UI Facade based on pygame. Gives some basic instruments like Button
+"""
+
+
 import pygame
 import event_handler as ev
 from typing import Callable
@@ -156,6 +161,7 @@ def tick(fps: float = -1) -> float:
 
 
 # setup
+__any__ = ["Button", "Font", "tick"]
 pygame.init()
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.display.set_caption("ui test")
