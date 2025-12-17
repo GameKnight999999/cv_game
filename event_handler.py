@@ -19,7 +19,6 @@ class Listener:
 
 
 def tick(fps: float = -1) -> float:
-    global last_call
     """
     Tick function, has to be called every game cycle.
     
@@ -28,6 +27,7 @@ def tick(fps: float = -1) -> float:
     :return: Returns time left from last call (in milliseconds).
     :rtype: float
     """
+    global last_call
     for e in pygame.event.get():
         for l in listeners:
             if e.type == l.eventtype or e.type in l.eventtype:
