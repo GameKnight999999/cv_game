@@ -1,16 +1,8 @@
 import pygame
-from event_handler import *
+import event_handler as ev
 from typing import Callable
-# setup
-pygame.init()
-screen = pygame.display.set_mode((1580, 820))
-pygame.display.set_caption("ui test")
-clock = pygame.time.Clock()
-screen_width, screen_height = screen.get_size()
-round_index = 0
-status_num = 0
 
-# image loading function
+
 def load_image(name):
     """
     loads an image
@@ -24,6 +16,11 @@ def load_image(name):
         print('Cannot load image:', name)
         raise SystemExit(message)
     return image
+
+
+class UIElement:
+    def render(self) -> None:
+        pass
 
 
 class Font:
@@ -117,9 +114,9 @@ class Font:
         self.seconds = []
         self.timer_start_time = None
 
-class Button:
+class Button(UIElement):
     """
-    Starts a decreasing timer
+    Creates a button
     Attributes:
         text: The text of the button
         action: callback funtion to call on click
@@ -136,7 +133,8 @@ class Button:
         def callback(e: pygame.event.Event):
             if 0 < e.pos[0] - x < self.width and 0 < e.pos[1] - x < self.height:
                 self.action()
-        self.listener = add_event_listener(pygame.MOUSEBUTTONDOWN, callback)
+        self.listener = ev.add_event_listener(pygame.MOUSEBUTTONDOWN, callback)
+        ui_elements.append(self)
 
 
     def render(self) -> None:
@@ -147,25 +145,20 @@ class Button:
 
 
     def __del__(self) -> None:
-        remove_event_listener(self.listener)
+        ev.remove_event_listener(self.listener)
+        ui_elements.remove(self)
 
 
-def handle_events():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
-                pass
+def tick(fps: float = -1) -> float:
+    for el in ui_elements:
+        el.render()
+    return ev.tick(fps)
 
-def Main_Menu():
-    #draw main menu here
-    pass
 
-def Settings():
-    #draw settings here
-    pass
-
-def Instructions():
-    #draw the instruction menu here
-    pass
+# setup
+pygame.init()
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+pygame.display.set_caption("ui test")
+clock = pygame.time.Clock()
+screen_width, screen_height = screen.get_size()
+ui_elements: list[UIElement] = []
