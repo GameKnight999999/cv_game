@@ -160,6 +160,34 @@ def tick(fps: float = -1) -> float:
     return ev.tick(fps)
 
 
+def bind(key: str, callback: Callable) -> None:
+    """
+    Binds a function to a key
+    
+    :param key: Key to bind for
+    :type key: str
+    :param callback: function to bind
+    :type callback: Callable
+    """
+    if key[0] not in keybinds:
+        keybinds[key[0]] = []
+    keybinds[key[0]].append(ev.add_event_listener(
+        pygame.KEYDOWN,
+        lambda e: callback if e.key == pygame.key.key_code(key[0]) else 0
+    ))
+
+
+def unbind(key: str) -> None:
+    """
+    Unbinds any functions from a key
+    
+    :param key: Key to unbind
+    :type key: str
+    """
+    for l in keybinds[key[0]]:
+        ev.remove_event_listener(l)
+
+
 # setup
 __any__ = ["Button", "Font", "tick"]
 pygame.init()
@@ -168,3 +196,4 @@ pygame.display.set_caption("ui test")
 clock = pygame.time.Clock()
 screen_width, screen_height = screen.get_size()
 ui_elements: list[UIElement] = []
+keybinds: dict[str, list[ev.Listener]] = {}
