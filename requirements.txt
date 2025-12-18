@@ -1,3 +1,4 @@
+cachetools==6.2.4
 mediapipe==0.10.21
 opencv_contrib_python==4.11.0.86
 pygame==2.6.1

@@ -4,11 +4,15 @@
 
 
 import pygame
+import cv2
 import event_handler as ev
+from settings import *
+from cachetools import cached
 from typing import Callable
 
 
-def load_image(name):
+@cached(None)
+def load_image(name: str) -> pygame.SurfaceType:
     """
     loads an image
     Args:
@@ -19,7 +23,7 @@ def load_image(name):
         image = pygame.image.load(fullname)
     except pygame.error as message:
         print('Cannot load image:', name)
-        raise SystemExit(message)
+        raise FileNotFoundError(message)
     return image
 
 
@@ -47,7 +51,7 @@ class Font:
         self.seconds = []
         self.timer_start_time = None
 
-    def print_text(self, text: str, symbol_size: set) -> None:
+    def print_text(self, text: str, symbol_size: tuple) -> None:
         """
         Prints the given text on the screen and writes not available symbols in a file
         Args:
@@ -118,6 +122,90 @@ class Font:
         self.timer_running = False
         self.seconds = []
         self.timer_start_time = None
+
+
+class Image(UIElement):
+    """
+    Class for rendering some imges on the screen
+    """
+    def __init__(self, image: pygame.SurfaceType, x: int, y: int) -> None:
+        """
+        Creates Image from pygame.Surface
+        
+        :param image: Surface to use as image
+        :param x: x coord of image on screen
+        :param y: y coord of image on screen
+        """
+        self.image = image
+        self.pos = x, y
+    
+
+    @classmethod
+    def load(cls, filename: str, x: int, y: int) -> "Image":
+        """
+        Loads and creates an image
+        
+        :param filename: Image file path
+        :param x: x coord of image on screen
+        :param y: y coord of image on screen
+        :return: New Image object
+        """
+        return cls(load_image(filename), x, y)
+
+
+    def render(self) -> None:
+        screen.blit(self.image, self.pos)
+
+
+class Video(Image):
+    def __init__(self, video: cv2.VideoCapture, x: int, y: int) -> None:
+        """
+        Create a Video object to show a video on screen
+        
+        :param video: cv2 VideoCapture object to read frames from
+        :param x: x coord of video on screen
+        :param y: y coord of video on screen
+        """
+        self.video = video
+        super().__init__(pygame.Surface((video.get(cv2.CAP_PROP_FRAME_WIDTH), video.get(cv2.CAP_PROP_FRAME_HEIGHT))), x, y)
+    
+
+    @classmethod
+    def load(cls, filename: str, x: int, y: int) -> "Image":
+        """
+        Loads and creates a video
+        
+        :param filename: Video file path
+        :param x: x coord of video on screen
+        :param y: y coord of video on screen
+        :return: New Video object
+        """
+        return cls(cv2.VideoCapture(filename), x, y)
+    
+
+    def read(self) -> pygame.SurfaceType:
+        success, frame = self.video.read()
+        if not success:
+            return load_image(VIDEO_PLACEHOLDER)
+        else:
+            return pygame.image.frombuffer(frame.tobytes(), frame.shape[1::-1], "BGR")
+    
+
+    def render(self) -> None:
+        self.image = self.read()
+        return super().render()
+
+
+class Text(UIElement):
+    def __init__(self, text: str, size: int, x: int, y: int) -> None:
+        self.text = text
+        self.size = size
+        self.pos = x, y
+    
+
+    def render(self) -> None:
+        pass
+
 
 class Button(UIElement):
     """
@@ -197,3 +285,5 @@ clock = pygame.time.Clock()
 screen_width, screen_height = screen.get_size()
 ui_elements: list[UIElement] = []
 keybinds: dict[str, list[ev.Listener]] = {}
+
+ev.add_event_listener(pygame.QUIT, lambda _: exit())
