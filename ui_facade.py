@@ -28,8 +28,16 @@ def load_image(name: str) -> pygame.SurfaceType:
 
 
 class UIElement:
+    def __init__(self) -> None:
+        ui_elements.append(self)
+    
+
     def render(self) -> None:
         pass
+
+
+    def __del__(self) -> None:
+        ui_elements.remove(self)
 
 
 class Font:
@@ -138,6 +146,7 @@ class Image(UIElement):
         """
         self.image = image
         self.pos = x, y
+        super().__init__()
     
 
     @classmethod
@@ -201,6 +210,7 @@ class Text(UIElement):
         self.text = text
         self.size = size
         self.pos = x, y
+        super().__init__()
     
 
     def render(self) -> None:
@@ -227,7 +237,7 @@ class Button(UIElement):
             if 0 < e.pos[0] - x < self.width and 0 < e.pos[1] - x < self.height:
                 self.action()
         self.listener = ev.add_event_listener(pygame.MOUSEBUTTONDOWN, callback)
-        ui_elements.append(self)
+        super().__init__()
 
 
     def render(self) -> None:
@@ -239,7 +249,7 @@ class Button(UIElement):
 
     def __del__(self) -> None:
         ev.remove_event_listener(self.listener)
-        ui_elements.remove(self)
+        super().__del__()
 
 
 def tick(fps: float = -1) -> float:
