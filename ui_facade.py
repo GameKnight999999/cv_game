@@ -351,6 +351,11 @@ def unbind(key: str) -> None:
         ev.remove_event_listener(l)
 
 
+def clearscreen() -> None:
+    global ui_elements
+    ui_elements = []
+
+
 # setup
 __any__ = ["Button", "Font", "tick"]
 pygame.init()

@@ -5,12 +5,8 @@ import ui_facade as ui
 MAIN_MENU, SETTINGS, HELP, GAME_SETUP, ROUND_SHOW_POSE, ROUND_TIMER, ROUND_SHOW_SCORE, TOTAL_RATING, QUIT, NULL = range(10)
 
 
-def clearscreen() -> None:
-    ui.ui_elements = []
-
-
 def main_menu() -> None:
-    clearscreen()
+    ui.clearscreen()
     ui.Image.load(MAIN_MENU_BACKGROUND, 0, 0)
     ui.Button("Start game", lambda: setattr(globals(), "event", GAME_SETUP), 50, 50, 200, 100)
     ui.Button("Quit", lambda: setattr(globals(), "event", QUIT), 300, 50, 200, 100)
