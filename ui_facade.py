@@ -320,8 +320,10 @@ class Button(UIElement):
 
 
 def tick(fps: float = -1) -> float:
+    screen.fill("black")
     for el in ui_elements:
         el.render()
+    pygame.display.flip()
     return ev.tick(fps)
 
 
