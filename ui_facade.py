@@ -157,7 +157,9 @@ class Font:
                 elif symbol == ' ':
                     symbol = 'space'
                 # print the symbol, change the x
-                screen.blit(load_image(f'{symbol}.png'), start_pos)
+                image = load_image(f'{symbol}.png')
+                image = pygame.transform.scale(image, (image.get_width() * size, image.get_height() * size))
+                screen.blit(image, start_pos)
                 start_text_pos_x += symbol_width
                 # move to the next line
                 if index == line_max_symbols:
