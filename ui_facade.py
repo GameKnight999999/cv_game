@@ -235,12 +235,15 @@ class Button(UIElement):
         self.text = text
         self.action = action
         self.x, self.y = x, y
-        self.width, self.height = width, height
+        self.width, self.height = len(text) * 100 * FONT_SIZE, 100
         self.font = Font()
         def callback(e: pygame.event.Event):
             if 0 < e.pos[0] - x < self.width and 0 < e.pos[1] - x < self.height:
                 self.action()
         self.listener = ev.add_event_listener(pygame.MOUSEBUTTONDOWN, callback)
+
+        self.rect = (self.x, self.y, self.width, self.height)
+
         super().__init__()
 
 
@@ -248,7 +251,7 @@ class Button(UIElement):
         """
         Render the button to the screen
         """
-        pygame.draw.rect(screen, "green", (self.x, self.y, self.width, self.height), border_radius=5)
+        pygame.draw.rect(screen, "green", self.rect, border_radius=5)
         self.font.print_at(self.text, FONT_SIZE, self.x, self.y)
 
 
