@@ -51,69 +51,12 @@ class Font:
         self.version = 'font version: 0.1'
 
         self.symbol_size = (100, 180)
-        self.start_text_pos_y = 0
         self.line = 0
         self.not_available = set()
 
         self.timer_running = False
         self.seconds = []
         self.timer_start_time = None
-
-    def print_text(self, text: str, symbol_size: tuple) -> None:
-        """
-        Prints the given text on the screen and writes not available symbols in a file
-        Args:
-            text: the text that will be printed out
-            symbol_size: the size of each symbol in pixels, a set with two variables: width and height
-        Returns:
-            A string containing the greeting message.
-        """
-        #basic stuff -- getting symbol size, the max amount of symbols the screen can fit, turning text into capitals, setting symbol index to 0
-        symbol_width, symbol_height = symbol_size
-        line_max_symbols = screen_width // symbol_width - 1
-        text = text.upper()
-        index = 0
-        message = False
-
-        #if the text won't fit in the screen
-        if len(text) >= line_max_symbols:
-            start_text_pos_x = (screen_width - line_max_symbols * symbol_width) // 2
-        else:
-            start_text_pos_x = (screen_width - len(text) * symbol_width) // 2
-
-        #getting the storting position
-        start_pos = (start_text_pos_x, self.start_text_pos_y + symbol_height * self.line)
-
-        #processing the text ig
-        for symbol in text:
-            if symbol in self.available_symbols:
-                # the system didn't let me save files named like :.png, etc, so i added this
-                # please don't delete or it's gonna crash :(
-                if symbol == '.':
-                    symbol = 'dot'
-                elif symbol == ':':
-                    symbol = 'colon'
-                elif symbol == ' ':
-                    symbol = 'space'
-                # print the symbol, change the x
-                screen.blit(load_image(f'{symbol}.png'), start_pos)
-                start_text_pos_x += symbol_width
-                # move to the next line
-                if index == line_max_symbols:
-                    self.line += 1
-                    start_text_pos_x = (screen_width - index * symbol_width) // 2
-                    index -= line_max_symbols
-            else:
-                message = True
-                self.not_available.add(symbol)
-            # change the position and increase the symbol's index by one
-            start_pos = (start_text_pos_x, self.start_text_pos_y + symbol_height * self.line)
-            index += 1
-
-        self.line = 0
-        if message:
-            print('Some of symbols in your text are not available yet, check out the file')
-
 
     def print_at(self, text: str, size: float, x: int, y: int) -> None:
         """
@@ -133,17 +76,14 @@ class Font:
             A string containing the greeting message.
         """
         #basic stuff -- getting symbol size, the max amount of symbols the screen can fit, turning text into capitals, setting symbol index to 0
-        symbol_width, symbol_height = size, size * 1.5
-        line_max_symbols = screen_width // symbol_width - 1
         text = text.upper()
-        index = 0
         message = False
 
-        #if the text won't fit in the screen
         start_text_pos_x = x
+        start_text_pos_y = y
 
         #getting the storting position
-        start_pos = (start_text_pos_x, y + symbol_height * self.line)
+        start_pos = (start_text_pos_x, start_text_pos_y)
 
         #processing the text ig
         for symbol in text:
@@ -156,22 +96,20 @@ class Font:
                     symbol = 'colon'
                 elif symbol == ' ':
                     symbol = 'space'
-                # print the symbol, change the x
+
                 image = load_image(f'{symbol}.png')
+                # scale the symbol to a new size
                 image = pygame.transform.scale(image, (image.get_width() * size, image.get_height() * size))
+
                 screen.blit(image, start_pos)
-                start_text_pos_x += symbol_width
-                # move to the next line
-                if index == line_max_symbols:
-                    self.line += 1
-                    start_text_pos_x = x
-                    index -= line_max_symbols
+                #change the x
+                start_text_pos_x += image.get_width() * size
+
             else:
                 message = True
                 self.not_available.add(symbol)
             # change the position and increase the symbol's index by one
-            start_pos = (start_text_pos_x, self.start_text_pos_y + symbol_height * self.line)
-            index += 1
+            start_pos = (start_text_pos_x, start_text_pos_y)
 
         self.line = 0
         if message:
@@ -311,7 +249,7 @@ class Button(UIElement):
         Render the button to the screen
         """
         pygame.draw.rect(screen, "green", (self.x, self.y, self.width, self.height), border_radius=5)
-        self.font.print_at(self.text, 14, self.x, self.y)
+        self.font.print_at(self.text, FONT_SIZE, self.x, self.y)
 
 
     def __del__(self) -> None:
