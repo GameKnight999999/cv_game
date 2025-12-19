@@ -7,7 +7,7 @@ MAIN_MENU, SETTINGS, HELP, GAME_SETUP, ROUND_SHOW_POSE, ROUND_TIMER, ROUND_SHOW_
 
 def main_menu() -> None:
     ui.clearscreen()
-    ui.Image.load(MAIN_MENU_BACKGROUND, 0, 0)
+    # ui.Image.load(MAIN_MENU_BACKGROUND, 0, 0)
     ui.Button("Start game", lambda: setattr(globals(), "event", GAME_SETUP), 50, 50, 200, 100)
     ui.Button("Quit", lambda: setattr(globals(), "event", QUIT), 300, 50, 200, 100)
     ui.Button("Settings", lambda: setattr(globals(), "event", SETTINGS), 550, 50, 200, 100)
