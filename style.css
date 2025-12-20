@@ -20,6 +20,9 @@ body {
 }
 .center {
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
 }
 button {
     transition: .5s;
@@ -48,17 +51,19 @@ h1 {
     color: black;
     text-shadow: 3px 3px 2px cyan, -3px -3px 2px rgb(255, 0, 128);
 }
-form {
-    transition: inherit;
-    width: min-content;
+.window {
+    transition: .5s;
+    width: fit-content;
     background-color: rgba(0, 0, 0, 0.5);
     border: 2px solid black;
     border-radius: 5px;
-    padding: 30px;
 }
-form:focus-within, form:hover {
+.window:focus-within, .window:hover {
     border-color: cyan;
     color: cyan;
+}
+form {
+    padding: 30px;
 }
 h2 {
     color: white;
@@ -99,4 +104,12 @@ button.submit {
 }
 form {
     text-align: center;
+}
+#help {
+    padding: 30px;
+    margin-bottom: 30px;
+}
+#help p {
+    text-align: left;
+    color: white;
 }
