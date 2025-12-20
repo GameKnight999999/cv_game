@@ -281,6 +281,15 @@ def play_music(name: str):
         print(f"Cannot load music file: {e}")
     pygame.mixer.music.play(-1)
 
+def mute_and_unmute_music():
+    """
+    Mutes and unmutes the music
+    """
+    if pygame.mixer.music.get_volume() == 1:
+        pygame.mixer.music.set_volume(0)
+    else:
+        pygame.mixer.music.set_volume(1)
+
 def bind(key: str, callback: Callable) -> None:
     """
     Binds a function to a key
@@ -325,3 +334,5 @@ ui_elements: list[UIElement] = []
 keybinds: dict[str, list[ev.Listener]] = {}
 
 ev.add_event_listener(pygame.QUIT, lambda _: exit())
+ev.add_event_listener(pygame.KEYDOWN, lambda x: mute_and_unmute_music() if x.key == pygame.K_m else None)
+ev.add_event_listener(pygame.KEYDOWN, lambda x: exit() if x.key == pygame.K_ESCAPE else None)
