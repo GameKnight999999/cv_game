@@ -29,7 +29,7 @@ def main_menu() -> None:
     ui.Button("Start game", lambda: globals().__setitem__("event", GAME_SETUP), 50, 50, 200, 100)
     ui.Button("Quit", lambda: globals().__setitem__("event", QUIT), 50, 200, 200, 100)
     ui.Button("Settings", lambda: globals().__setitem__("event", SETTINGS), 50, 350, 200, 100)
-    ui.Button("(mental) Help", lambda: globals().__setitem__("event", HELP), 50, 500, 200, 100)
+    ui.Button("Help", lambda: globals().__setitem__("event", HELP), 50, 500, 200, 100)
     ui.play_music('test')
 
 
