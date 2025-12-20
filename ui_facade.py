@@ -267,6 +267,19 @@ def tick(fps: float = -1) -> float:
     pygame.display.flip()
     return ev.tick(fps)
 
+def play_music(name: str):
+    """
+    Plays looped music
+
+    :param name: Name of the music file without .mp3
+    :type name: str
+    """
+    full_name = f'music/{name}.mp3'
+    try:
+        pygame.mixer.music.load(full_name)
+    except pygame.error as e:
+        print(f"Cannot load music file: {e}")
+    pygame.mixer.music.play(-1)
 
 def bind(key: str, callback: Callable) -> None:
     """

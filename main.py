@@ -12,6 +12,7 @@ def main_menu() -> None:
     ui.Button("Quit", lambda: setattr(globals(), "event", QUIT), 50, 200, 200, 100)
     ui.Button("Settings", lambda: setattr(globals(), "event", SETTINGS), 50, 350, 200, 100)
     ui.Button("Help", lambda: setattr(globals(), "event", HELP), 50, 500, 200, 100)
+    ui.play_music('test')
     
 
 
