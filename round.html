@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="top">
+        <img src="poses/01.jpg" alt="" height="100px">
+    </div>
+    <div class="center">
+    <video id="video" autoplay playsinline muted></video>
+
+    <script>
+        const videoElement = document.getElementById('video');
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false }) // Request video only
+            .then(function(stream) {
+                videoElement.srcObject = stream;
+                videoElement.onloadedmetadata = function(e) {
+                    videoElement.play();
+                };
+            });
+    </script>
+    </div>
+</body>
+</html>

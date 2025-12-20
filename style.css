@@ -22,9 +22,11 @@ body {
     text-align: center;
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: stretch;
 }
 button {
+    width: fit-content;
     transition: .5s;
     color: white;
     background-color: black;
