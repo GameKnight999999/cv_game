@@ -285,10 +285,10 @@ def mute_and_unmute_music():
     """
     Mutes and unmutes the music
     """
-    if pygame.mixer.music.get_volume() == 1:
+    if pygame.mixer.music.get_volume() == VOLUME:
         pygame.mixer.music.set_volume(0)
     else:
-        pygame.mixer.music.set_volume(1)
+        pygame.mixer.music.set_volume(VOLUME)
 
 def bind(key: str, callback: Callable) -> None:
     """
