@@ -106,14 +106,11 @@ class Font:
                 start_text_pos_x += image.get_width() * size + 10
 
             else:
-                message = True
                 self.not_available.add(symbol)
             # change the position and increase the symbol's index by one
             start_pos = (start_text_pos_x, start_text_pos_y)
 
         self.line = 0
-        if message:
-            print('Some of symbols in your text are not available yet, check out the file')
 
 
     def start_timer(self, start_time) -> None:
@@ -237,12 +234,11 @@ class Button(UIElement):
         self.x, self.y = x, y
         self.width, self.height = len(text) * 100 * FONT_SIZE, 100
         self.font = Font()
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         def callback(e: pygame.event.Event):
-            if 0 < e.pos[0] - x < self.width and 0 < e.pos[1] - x < self.height:
+            if self.rect.collidepoint(e.pos[0], e.pos[1]) and self.action:
                 self.action()
         self.listener = ev.add_event_listener(pygame.MOUSEBUTTONDOWN, callback)
-
-        self.rect = (self.x, self.y, self.width, self.height)
 
         super().__init__()
 
@@ -267,7 +263,7 @@ def tick(fps: float = -1) -> float:
     pygame.display.flip()
     return ev.tick(fps)
 
-def play_music(name: str):
+def play_music(name: str) -> None:
     """
     Plays looped music
 
@@ -281,14 +277,29 @@ def play_music(name: str):
         print(f"Cannot load music file: {e}")
     pygame.mixer.music.play(-1)
 
-def mute_and_unmute_music():
+def play_sound(name: str) -> None:
+    """
+    Plays a sound once
+
+    :param name: Name of the sound file without .mp3
+    :type name: str
+    """
+    full_name = f'sounds/{name}.mp3'
+    try:
+        sound = pygame.mixer.Sound(full_name)
+        sound.play()
+    except pygame.error as e:
+        print(f"Cannot load sound file: {e}")
+
+
+def mute_and_unmute_music() -> None:
     """
     Mutes and unmutes the music
     """
-    if pygame.mixer.music.get_volume() == VOLUME:
-        pygame.mixer.music.set_volume(0)
-    else:
+    if pygame.mixer.music.get_volume() == 0:
         pygame.mixer.music.set_volume(VOLUME)
+    else:
+        pygame.mixer.music.set_volume(0)
 
 def bind(key: str, callback: Callable) -> None:
     """
