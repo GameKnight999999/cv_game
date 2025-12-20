@@ -103,7 +103,7 @@ class Font:
 
                 screen.blit(image, start_pos)
                 #change the x
-                start_text_pos_x += image.get_width() * size
+                start_text_pos_x += image.get_width() * size + 10
 
             else:
                 message = True
