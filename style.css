@@ -115,3 +115,15 @@ form {
     text-align: left;
     color: white;
 }
+#rating {
+    padding: 30px;
+}
+table {
+    color: white;
+    padding: 5px;
+    font-size: x-large;
+    border-collapse: collapse;
+}
+td {
+    padding: 10px;
+}
