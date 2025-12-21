@@ -8,14 +8,14 @@
 </head>
 <body>
     <div class="top">
-        <img src="poses/01.jpg" alt="" height="100px">
+        <img src="poses/01.jpg" alt="Pose" height="100px">
     </div>
     <div class="center">
     <video id="video" autoplay playsinline muted></video>
 
     <script>
         const videoElement = document.getElementById('video');
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false }) // Request video only
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
             .then(function(stream) {
                 videoElement.srcObject = stream;
                 videoElement.onloadedmetadata = function(e) {

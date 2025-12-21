@@ -124,3 +124,6 @@ table {
 td {
     padding: 10px;
 }
+#video {
+    transform: scaleX(-1);
+}
