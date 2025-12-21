@@ -13,7 +13,10 @@ class Api:
         values = {}
         for node in formHTML["childNodes"]:
             if node["nodeName"] == "INPUT":
-                values[node["name"]] = node["value"]
+                if node["type"] == "number":
+                    values[node["name"]] = node["valueAsNumber"]
+                else:
+                    values[node["name"]] = node["value"]
         try:
             getattr(self, action)(values)
         except AttributeError:
@@ -22,6 +25,10 @@ class Api:
 
     def save(self, values: dict) -> None:
         json.dump(values, open(SETTINGS_PATH, "wt"))
+    
+
+    def get_settings(self):
+        return json.load(open(SETTINGS_PATH, 'rt'))
 
 
 def setup() -> None:

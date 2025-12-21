@@ -6,23 +6,35 @@
     <title>CV game</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body onload="setup()">
     <div class="top">
         <img src="poses/01.jpg" alt="Pose" height="100px">
     </div>
     <div class="center">
-    <video id="video" autoplay playsinline muted></video>
+        <h2 id="timer"></h2>
+        <video id="video" autoplay playsinline muted></video>
 
-    <script>
-        const videoElement = document.getElementById('video');
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-            .then(function(stream) {
-                videoElement.srcObject = stream;
-                videoElement.onloadedmetadata = function(e) {
-                    videoElement.play();
-                };
-            });
-    </script>
+        <script>
+            async function setup() {
+                const videoElement = document.getElementById('video');
+                navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                        videoElement.onloadedmetadata = function(e) {
+                            videoElement.play();
+                        };
+                    });
+                var timer = await window.pywebview.api.get_settings().timer;
+                const timerElement = document.getElementById("timer");
+                const interval = setInterval(() => {
+                    timerElement.innerText = timer;
+                    timer--;
+                    if (timer == 0) {
+                        clearInterval(interval);
+                    }
+                }, 1000);
+            }
+        </script>
     </div>
 </body>
 </html>
