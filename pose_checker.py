@@ -1,6 +1,33 @@
+"""
+    Some functions for pose checking
+"""
+
+
 import math, json, os
 from settings import *
 from typing import Sequence
+import mediapipe as mp
+
+
+pose = mp.solutions.pose.Pose( # type: ignore
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5)
+
+
+def check_frame(frame, sample_id: int) -> float:
+    """
+    Checks is the pose on the frame or not
+    
+    :param frame: Frame in RGB
+    :param sample_id: Sample pose id
+    :return: Match percentage (from 0 to 1)
+    """
+    frame.flags.writeable = False
+    results = pose.process(frame)
+    frame.flags.writeable = True
+    if results is not None and results.pose_landmarks is not None and results.pose_landmarks.landmark is not None:
+        return check_id([(landmark.x, landmark.y) for landmark in results.pose_landmarks.landmark], sample_id)
+    return 0
 
 
 def check_id(pose: Sequence, sample_id: int) -> float:

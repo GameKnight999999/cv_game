@@ -14,10 +14,6 @@ body {
     font-family: Arial;
     transition: .5s;
 }
-
-.major {
-    font-size: 40px;
-}
 .center {
     text-align: center;
     display: flex;
@@ -25,8 +21,9 @@ body {
     align-items: center;
     justify-content: stretch;
 }
-button {
+button, .button {
     width: fit-content;
+    text-decoration: none;
     transition: .5s;
     color: white;
     background-color: black;
@@ -37,9 +34,12 @@ button {
     margin: 5px;
     font-size: 28px;
 }
-button:hover {
+button:hover, .button:hover {
     color: cyan;
     border-color: cyan;
+}
+.major {
+    font-size: 40px;
 }
 .bar {
     display: flex;
@@ -107,16 +107,13 @@ button.submit {
 form {
     text-align: center;
 }
-#help {
+#help, #rating {
     padding: 30px;
     margin-bottom: 30px;
 }
 #help p {
     text-align: left;
     color: white;
-}
-#rating {
-    padding: 30px;
 }
 table {
     color: white;
