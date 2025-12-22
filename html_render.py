@@ -33,41 +33,49 @@ class Api:
         js = f"""
             const poseElement = document.getElementById("pose");
             poseElement.src = "poses/{self.pose:02d}.jpg";
-            contst timerElement = document.getElementById("timer");
+            const timerElement = document.getElementById("timer");
             var timer = {settings["timer"]};
             const interval = setInterval(() => {{
-                timer.innerText = timer;
-                timer--;
                 if (timer == 0) {{
                     clearInterval(interval);
-                    window.pywebview.api.check_poses();
+                    window.location.href = "rating.html";
                 }}
+                timerElement.innerText = timer;
+                timer--;
             }}, 1000);
         """
         window.run_js(js) # type: ignore
     
 
     def rating(self) -> None:
-        pass
-    
-
-    def check_poses(self) -> None:
-        while not cap.isOpened():
-            pass
-        success = False
-        while not success:
+        cap = cv2.VideoCapture(1)
+        if not cap.isOpened():
+            cap = cv2.VideoCapture(0)
+        if cap.isOpened():
             success, frame = cap.read()
-        self.check_result = check_frame(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), self.pose) # type: ignore
-        window.load_url("pages/rating.html") # type: ignore
+            if success:
+                self.check_result = check_frame(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), self.pose) # type: ignore
+            else:
+                self.check_result = 0
+        else:
+            self.check_result = 0
+        js = f"""
+            const tableElement = document.getElementById("rtable");
+            const rowElement = document.createElement("tr");
+            const nameElement = document.createElement("td");
+            const scoreElement = document.createElement("td");
+            nameElement.innerText = "Player 1";
+            scoreElement.innerText = {self.check_result * MAX_SCORE:.0f};
+            rowElement.appendChild(nameElement);
+            rowElement.appendChild(scoreElement);
+            tableElement.appendChild(rowElement);
+        """
+        window.run_js(js) # type: ignore
 
 
 def setup() -> None:
-    global window, cap, settings
+    global window, settings
     window = webview.create_window('Woah dude!', 'pages/main.html', js_api=Api(), fullscreen=True)
-    try:
-        cap = cv2.VideoCapture(1)
-    except:
-        cap = cv2.VideoCapture()
     settings = json.load(open(SETTINGS_PATH, 'rt'))
 
 

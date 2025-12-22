@@ -6,9 +6,9 @@
     <title>CV game</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body onload="window.pywebview.api.round()">
+<body onload="window.addEventListener('pywebviewready', () => pywebview.api.round())">
     <div class="top">
-        <img alt="Pose" height="100px" id="pose">
+        <img alt="Pose" src="" height="100px" id="pose">
     </div>
     <div class="center">
         <h2 id="timer"></h2>

@@ -6,19 +6,15 @@
     <title>CV game</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body onload="window.addEventListener('pywebviewready', () => pywebview.api.rating())">
     <div class="center">
         <div class="window" id="rating">
             <h2>Total rating</h2>
-            <table>
+            <table id="rtable">
                 <thead>
                     <td>Player</td>
                     <td>Score</td>
                 </thead>
-                <tr>
-                    <td>test</td>
-                    <td>1</td>
-                </tr>
             </table>
         </div>
         <a class="button" href="main.html">Return</a>
