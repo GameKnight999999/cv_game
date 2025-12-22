@@ -24,11 +24,16 @@ class Api:
             return
     
 
+    def game(self, values: dict) -> None:
+        self.round_counter = values["rounds"]
+    
+
     def save(self, values: dict) -> None:
         json.dump(values, open(SETTINGS_PATH, "wt"))
     
 
     def round(self) -> None:
+        self.round_counter -= 1
         self.pose = random.randint(1, POSES_COUNT)
         js = f"""
             const poseElement = document.getElementById("pose");
@@ -38,7 +43,7 @@ class Api:
             const interval = setInterval(() => {{
                 if (timer == 0) {{
                     clearInterval(interval);
-                    window.location.href = "rating.html";
+                    {"window.location.href = 'rating.html';" if self.round_counter == 0 else "window.location.reload();"}
                 }}
                 timerElement.innerText = timer;
                 timer--;
@@ -51,14 +56,16 @@ class Api:
         cap = cv2.VideoCapture(1)
         if not cap.isOpened():
             cap = cv2.VideoCapture(0)
+        if not hasattr(self, "check_result"):
+            self.check_result = 0
         if cap.isOpened():
             success, frame = cap.read()
             if success:
-                self.check_result = check_frame(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), self.pose) # type: ignore
+                self.check_result += check_frame(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), self.pose) # type: ignore
             else:
-                self.check_result = 0
+                self.check_result += 0
         else:
-            self.check_result = 0
+            self.check_result += 0
         js = f"""
             const tableElement = document.getElementById("rtable");
             const rowElement = document.createElement("tr");
