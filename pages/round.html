@@ -15,6 +15,17 @@
         <video id="video" autoplay playsinline muted></video>
 
         <script>
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.visible = false;
+
+            function grabFrame() {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0);
+                return canvas.toDataURL('image/jpeg');
+            }
+
             const videoElement = document.getElementById('video');
             navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                 .then(function(stream) {

@@ -1,5 +1,5 @@
 import os, json, random
-import cv2, webview
+import cv2, webview, base64, numpy as np
 from pose_checker import *
 from settings import *
 
@@ -40,11 +40,10 @@ class Api:
             poseElement.src = "poses/{self.pose:02d}.jpg";
             const timerElement = document.getElementById("timer");
             var timer = {settings["timer"]};
-            const interval = setInterval(() => {{
+            const interval = setInterval(async () => {{
                 if (timer == 0) {{
                     clearInterval(interval);
-                    document.getElementById("video").remove();
-                    window.pywebview.api.check_frame();
+                    await window.pywebview.api.check_frame(grabFrame());
                     {"window.location.href = 'rating.html';" if self.round_counter == 0 else "window.location.reload();"}
                 }}
                 timerElement.innerText = timer;
@@ -64,16 +63,16 @@ class Api:
         window.run_js(js) # type: ignore
     
 
-    def check_frame(self) -> None:
-        cap = cv2.VideoCapture(1)
-        if not cap.isOpened():
-            cap = cv2.VideoCapture(0)
+    def check_frame(self, frame_url: str) -> None:
+        encoded = frame_url.split(',')[1]
+        img_bytes = base64.b64decode(encoded)
+        frame = cv2.imdecode(
+            np.frombuffer(img_bytes, np.uint8),
+            cv2.IMREAD_COLOR
+        )
         if not hasattr(self, "check_results"):
             self.check_results = []
-        if cap.isOpened():
-            success, frame = cap.read()
-            if success:
-                self.check_results.append(check_frame(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), self.pose)) # type: ignore
+        self.check_results.append(check_frame(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), self.pose)) # type: ignore
     
 
     def rating(self) -> None:
