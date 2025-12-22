@@ -54,6 +54,14 @@ class Api:
         window.run_js(js) # type: ignore
     
 
+    def settings(self) -> None:
+        js = f"""
+            const inputElement = document.getElementById("param1");
+            inputElement.value = {settings["timer"]};
+        """
+        window.run_js(js) # type: ignore
+    
+
     def rating(self) -> None:
         cap = cv2.VideoCapture(1)
         if not cap.isOpened():
@@ -82,7 +90,7 @@ class Api:
         window.run_js(js) # type: ignore
 
 
-def js_debug(js: str) -> None:
+def debug_js(js: str) -> None:
     result = window.evaluate_js( # type: ignore
     f"""
         (() => try {{ {js}\nreturn {{ok: true}} }} catch (e) {{ return {{ok: false, message: e.message, stack: e.stack}} }})
