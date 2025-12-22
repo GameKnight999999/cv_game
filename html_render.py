@@ -29,7 +29,9 @@ class Api:
     
 
     def save(self, values: dict) -> None:
+        global settings
         json.dump(values, open(SETTINGS_PATH, "wt"))
+        settings = values
     
 
     def round(self) -> None:
@@ -78,6 +80,14 @@ class Api:
             tableElement.appendChild(rowElement);
         """
         window.run_js(js) # type: ignore
+
+
+def js_debug(js: str) -> None:
+    result = window.evaluate_js(f"""
+        (() => try {{ {js}\nreturn {{ok: true}} }} catch (e) {{ return {{ok: false, message: e.message, stack: e.stack}} }})
+    """)
+    if not result["ok"]:
+        raise Exception(result["message"], result["stack"])
 
 
 def setup() -> None:
