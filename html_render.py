@@ -24,10 +24,6 @@ class Api:
             return
     
 
-    def game(self, values: dict) -> None:
-        self.round_counter = values["rounds"]
-    
-
     def save(self, values: dict) -> None:
         global settings
         json.dump(values, open(SETTINGS_PATH, "wt"))
@@ -35,6 +31,8 @@ class Api:
     
 
     def round(self) -> None:
+        if not hasattr(self, "round_counter") or self.round_counter == 0:
+            self.round_counter = settings["rounds"]
         self.round_counter -= 1
         self.pose = random.randint(1, POSES_COUNT)
         js = f"""
@@ -45,6 +43,8 @@ class Api:
             const interval = setInterval(() => {{
                 if (timer == 0) {{
                     clearInterval(interval);
+                    document.getElementById("video").remove();
+                    window.pywebview.api.check_frame();
                     {"window.location.href = 'rating.html';" if self.round_counter == 0 else "window.location.reload();"}
                 }}
                 timerElement.innerText = timer;
@@ -56,38 +56,35 @@ class Api:
 
     def settings(self) -> None:
         js = f"""
-            const inputElement = document.getElementById("param1");
-            inputElement.value = {settings["timer"]};
+            const param1Element = document.getElementById("param1");
+            const param2Element = document.getElementById("param2");
+            param1Element.value = {settings["timer"]};
+            param2Element.value = {settings["rounds"]};
         """
         window.run_js(js) # type: ignore
     
 
-    def rating(self) -> None:
+    def check_frame(self) -> None:
         cap = cv2.VideoCapture(1)
         if not cap.isOpened():
             cap = cv2.VideoCapture(0)
-        if not hasattr(self, "check_result"):
-            self.check_result = 0
+        if not hasattr(self, "check_results"):
+            self.check_results = []
         if cap.isOpened():
             success, frame = cap.read()
             if success:
-                self.check_result += check_frame(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), self.pose) # type: ignore
-            else:
-                self.check_result += 0
-        else:
-            self.check_result += 0
+                self.check_results.append(check_frame(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), self.pose)) # type: ignore
+    
+
+    def rating(self) -> None:
+        if len(self.check_results) == 0:
+            self.check_results = [0]
         js = f"""
-            const tableElement = document.getElementById("rtable");
-            const rowElement = document.createElement("tr");
-            const nameElement = document.createElement("td");
-            const scoreElement = document.createElement("td");
-            nameElement.innerText = "Player 1";
-            scoreElement.innerText = {self.check_result * MAX_SCORE:.0f};
-            rowElement.appendChild(nameElement);
-            rowElement.appendChild(scoreElement);
-            tableElement.appendChild(rowElement);
+            const scoreElement = document.getElementById("score");
+            scoreElement.innerText = {sum(self.check_results) / len(self.check_results) * 100:.0f} + "%";
         """
         window.run_js(js) # type: ignore
+        self.check_results = []
 
 
 def debug_js(js: str) -> None:
@@ -101,7 +98,7 @@ def debug_js(js: str) -> None:
 
 def setup() -> None:
     global window, settings
-    window = webview.create_window('Woah dude!', 'pages/main.html', js_api=Api(), fullscreen=True)
+    window = webview.create_window('GUI', 'pages/main.html', js_api=Api(), fullscreen=True)
     settings = json.load(open(SETTINGS_PATH, 'rt'))
 
 
