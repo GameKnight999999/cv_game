@@ -144,12 +144,7 @@ def show_round():
             image.flags.writeable = True
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-            mp_drawing.draw_landmarks(
-                image,
-                results.pose_landmarks,
-                mp_pose.POSE_CONNECTIONS,
-                landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style()
-            )
+
 
             pose_img = cv2.imread(os.path.sep.join((SAMPLES_PATH, f"{pose_id:02d}.jpg")))
             # picture's width and height is adjusted here
