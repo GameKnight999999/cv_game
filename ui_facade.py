@@ -247,12 +247,13 @@ class ButtonArrows(Button):
         x: x coord of left-top corner of the button
         y: y coord of left-top corner of the button
     """
-    def __init__(self, text: str, name: str, value: int, max_value: int, x: int, y: int) -> None:
-
+    def __init__(self, text: str, name: str, value: (int, str), max_value: int, x: int, y: int, values: tuple=tuple(), add_to_value:int=1, min_value:int=1) -> None:
         self.max_value = max_value
-        self.min_value = 1
+        self.min_value = min_value
         self.name = name
         self.value = value
+        self.values = values
+        self.add_to_value = add_to_value
         super().__init__(text, self.apply_value, x, y, False)
         # note: change the variables to the actual ones
         self.arrow_left = pygame.Rect(int(self.x + self.width), self.y, self.width, self.height)
@@ -260,14 +261,26 @@ class ButtonArrows(Button):
 
         def callback(e: pygame.event.Event):
             if self.arrow_left.collidepoint(e.pos):
-                if self.value != self.min_value:
-                    self.value -= 1
-                    self.action()
+                if isinstance(self.value, int):
+                    if self.value != self.min_value:
+                        self.value -= self.add_to_value
+                        self.action()
+                else:
+                    if self.values.index(self.value) != 0:
+                        self.value = self.values[self.values.index(self.value) - 1]
+                        self.action()
             elif self.arrow_right.collidepoint(e.pos):
-                if self.value != self.max_value:
-                    self.value += 1
-                    self.action()
+                if isinstance(self.value, int):
+                    if self.value != self.max_value:
+                        self.value += self.add_to_value
+                        self.action()
+                else:
+                    if self.values.index(self.value) != self.values.index(self.values[-1]):
+                        self.value = self.values[self.values.index(self.value) - 1]
+                        self.action()
 
+        if self.name == 'USER_VOLUME':
+            set_volume(self.value)
         self.arrow_listener = ev.add_event_listener(pygame.MOUSEBUTTONDOWN, callback)
         self.listeners.append(self.arrow_listener)
 
@@ -284,7 +297,6 @@ class ButtonArrows(Button):
         self.arrow_right = pygame.Rect(self.end_pos[0], self.end_pos[1], 70, self.height)
         #pygame.draw.rect(screen, "green", self.arrow_right, border_radius=5)
         self.end_pos = self.font.print_at('>', settings.FONT_SIZE, self.end_pos[0], self.end_pos[1])
-
 
 class Label(UIElement):
     """
@@ -308,12 +320,20 @@ class Label(UIElement):
 
 
 def tick(fps: float = -1) -> float:
-    screen.fill("black")
+    if settings.THEME == 'dark':
+        screen.fill('black')
+    else:
+        screen.fill('white')
     for el in ui_elements:
         el.render()
     pygame.display.flip()
     return ev.tick(fps)
 
+def set_volume(vol: int):
+    vol = max(0, min(100, vol))
+    settings.USER_VOLUME = vol
+    settings.VOLUME = vol / 100
+    pygame.mixer.music.set_volume(settings.VOLUME)
 
 def play_music(name: str) -> None:
     """
@@ -351,9 +371,10 @@ def mute_and_unmute_music() -> None:
     Mutes and unmutes the music
     """
     if pygame.mixer.music.get_volume() == 0:
-        pygame.mixer.music.set_volume(settings.VOLUME)
+        set_volume(getattr(settings, "_PREV_VOLUME", settings.USER_VOLUME))
     else:
-        pygame.mixer.music.set_volume(0)
+        settings._PREV_VOLUME = settings.USER_VOLUME
+        set_volume(0)
 
 
 def bind(key: str, callback: Callable) -> None:
@@ -393,7 +414,10 @@ def clearscreen() -> None:
     for el in ui_elements:
         el.destroy()
     ui_elements = []
-    screen.fill('black')
+    if settings.THEME == 'dark':
+        screen.fill('black')
+    else:
+        screen.fill('white')
 
 
 # setup

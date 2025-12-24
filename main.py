@@ -8,9 +8,9 @@ import mediapipe as mp
 import settings
 import ui_facade as ui
 
-
-MAIN_MENU, SETTINGS, HELP, GAME_SETUP, ROUND_SHOW_POSE, ROUND_TIMER, ROUND_SHOW_SCORE, TOTAL_RATING, QUIT, NULL = range(10)
+MAIN_MENU, SETTINGS, HELP, GAME_SETUP, ROUND_SHOW_POSE, ROUND_SHOW_SCORE, TOTAL_RATING, QUIT, NULL = range(9)
 music_playing = False
+countdown_playing = False
 score = []
 font = ui.Font()
 round_num = 0
@@ -26,20 +26,27 @@ def help() -> None:
     ui.Button("as precise as you can", lambda: test(), 200, 300, False)
     ui.Button("to get more points and ", lambda: test(), 200, 400, False)
     ui.Button("win the round!", lambda: test(), 200, 500, False)
+    ui.Button("m to mute, esc to quit", lambda: test(), 200, 650, False)
     ui.Button("go back", lambda: globals().__setitem__("event", MAIN_MENU), 500, 800, True)
 
 def draw_settings():
     ui.clearscreen()
-    ui.ButtonArrows('timer value:', 'TIMER', settings.TIMER, 60, 50, 50)
+    ui.ButtonArrows('volume:', 'USER_VOLUME', settings.USER_VOLUME, 100, 50, 50, tuple(), 10, 0)
+    ui.ButtonArrows('timer value:', 'TIMER', settings.TIMER, 60, 50, 200)
+    ui.ButtonArrows('mod:', 'MOD', settings.MOD, 0, 50, 350, settings.MODS)
+    ui.ButtonArrows('theme:', 'THEME', settings.THEME, 0, 50, 500, settings.THEMES)
     ui.Button("done", lambda: globals().__setitem__("event", MAIN_MENU), 500, 800, True)
     if settings.HIGH_SCORE:
-        ui.Label(f'{settings.HIGH_SCORE}', settings.FONT_SIZE, 50, 250)
+        ui.Label(f'high score: {settings.HIGH_SCORE}', settings.FONT_SIZE, 50, 650)
 
 
 def main_menu() -> None:
     global music_playing
     ui.clearscreen()
-    ui.Image.load(MAIN_MENU_BACKGROUND, 0, 0)
+    if settings.THEME == 'dark':
+        ui.Image.load('main_background_dark.png', 0, 0)
+    else:
+        ui.Image.load('main_background_light.png', 0, 0)
     ui.Button("Start game", lambda: globals().__setitem__("event", GAME_SETUP), 50, 50, True)
     ui.Button("Quit", lambda: globals().__setitem__("event", QUIT), 50, 200, True)
     ui.Button("Settings", lambda: globals().__setitem__("event", SETTINGS), 50, 350, True)
@@ -50,32 +57,35 @@ def main_menu() -> None:
 
 def game_setup():
     ui.clearscreen()
-    buttons_or_smth = []
-    buttons_or_smth.append(ui.ButtonArrows('number of players:', 'PLAYERS', settings.PLAYERS, settings.MAX_PLAYERS, 50, 50))
-    buttons_or_smth.append(ui.ButtonArrows('number of rounds:', 'ROUNDS', settings.ROUNDS, settings.MAX_ROUNDS, 50, 300))
-    buttons_or_smth.append(ui.Button("continue", lambda: globals().__setitem__("event", ROUND_SHOW_POSE), 500, 800, True))
-
-
-
+    ui.ButtonArrows('number of players:', 'PLAYERS', settings.PLAYERS, settings.MAX_PLAYERS, 50, 50)
+    if settings.MOD == 'rounds':
+        ui.ButtonArrows('number of rounds:', 'ROUNDS', settings.ROUNDS, settings.MAX_ROUNDS, 50, 300)
+    elif settings.MOD == 'score':
+        ui.ButtonArrows('target score:', 'TARGET_SCORE', settings.TARGET_SCORE, settings.MAX_TARGET_SCORE, 50, 350, tuple(), 100)
+    ui.Button("continue", lambda: globals().__setitem__("event", ROUND_SHOW_POSE), 500, 800, True)
 
 def draw_timer():
-    global round_num
+    global round_num, countdown_playing
     if font.timer_running:
         elapsed = pygame.time.get_ticks() // 1000 - font.timer_start_time
         remaining = settings.TIMER - elapsed
-
-        if remaining <= 0:
+        if remaining == 5 and not countdown_playing:
+            ui.play_sound('countdown_v2')
+            countdown_playing = True
+        elif remaining <= 0:
             font.end_timer()
+            countdown_playing = False
             return
-
         ui.Font.print_at(font, str(remaining), settings.FONT_SIZE, 500, 150)
 
 def show_round_stats():
     global round_num, score
     ui.clearscreen()
     ui.Label(f'round: {round_num}', settings.FONT_SIZE, 100, 100)
-    ui.Label(f'score in this round: {score[-1]}', settings.FONT_SIZE, 100, 300)
-    ui.Label(f'total score: {sum(score)}', settings.FONT_SIZE, 100, 500)
+    ui.Label(f'score in this round: {score[-1]}', settings.FONT_SIZE, 100, 250)
+    ui.Label(f'total score: {sum(score)}', settings.FONT_SIZE, 100, 400)
+    if settings.MOD == 'score':
+        ui.Label(f'score left until target: {settings.TARGET_SCORE - sum(score)}', settings.FONT_SIZE, 100, 550)
     ui.Button('continue', lambda: globals().__setitem__("event", ROUND_SHOW_POSE), 500, 800, True)
 
 def show_round_results():
@@ -161,12 +171,20 @@ def show_round():
 
             ui.screen.blit(surface, (200, 300))
             pygame.display.flip()
-        if round_num < settings.ROUNDS:
-            score.append(round_score)
-            globals().__setitem__("event", ROUND_SHOW_SCORE)
-        elif round_num == settings.ROUNDS:
-            score.append(round_score)
-            globals().__setitem__("event", TOTAL_RATING)
+        if settings.MOD == 'rounds':
+            if round_num < settings.ROUNDS:
+                score.append(round_score)
+                globals().__setitem__("event", ROUND_SHOW_SCORE)
+            elif round_num == settings.ROUNDS:
+                score.append(round_score)
+                globals().__setitem__("event", TOTAL_RATING)
+        elif settings.MOD == 'score':
+            if sum(score) + round_score < settings.TARGET_SCORE:
+                score.append(round_score)
+                globals().__setitem__("event", ROUND_SHOW_SCORE)
+            elif sum(score) + round_score >= settings.TARGET_SCORE:
+                score.append(round_score)
+                globals().__setitem__("event", TOTAL_RATING)
 
     cap.release()
 
@@ -184,8 +202,6 @@ def main() -> None:
             game_setup()
         elif event == ROUND_SHOW_POSE:
             show_round()
-        elif event == ROUND_TIMER:
-            pass
         elif event == ROUND_SHOW_SCORE:
             show_round_stats()
         elif event == TOTAL_RATING:
