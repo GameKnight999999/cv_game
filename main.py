@@ -12,8 +12,8 @@ MAIN_MENU, SETTINGS, HELP, GAME_SETUP, ROUND_SHOW_POSE, ROUND_SHOW_SCORE, TOTAL_
 music_playing = False
 countdown_playing = False
 zero_playing = False
-score = []
 font = ui.Font()
+score = []
 round_num = 0
 round_score = 0
 cap = None
@@ -43,8 +43,11 @@ def draw_settings():
 
 
 def main_menu() -> None:
-    global music_playing
+    global music_playing, score, round_score, round_num
     ui.clearscreen()
+    score = []
+    round_num = 0
+    round_score = 0
     if settings.THEME == 'dark':
         ui.Image.load('main_background_dark.png', 0, 0)
     else:
