@@ -16,6 +16,7 @@ score = []
 font = ui.Font()
 round_num = 0
 round_score = 0
+cap = None
 
 def test():
     ui.play_sound('boop')
@@ -95,6 +96,7 @@ def show_round_stats():
 
 def show_round_results():
     global round_num, score
+    ui.clearscreen()
     if sum(score) >= settings.HIGH_SCORE:
         settings.HIGH_SCORE = sum(score)
     ui.Label(f'rounds played: {round_num}', settings.FONT_SIZE, 400, 100)
@@ -112,10 +114,6 @@ def show_round():
 
     angles = json.load(open(os.path.sep.join((SAMPLES_PATH, f"{1:02d}.json"))))
     pose_id = randint(1, 13)
-
-    cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
     with mp_pose.Pose(
             min_detection_confidence=0.5,
@@ -170,7 +168,7 @@ def show_round():
                     (0, 255 * conf, 255 * (1 - conf)),
                     3
                 )
-                round_score = float(f"{conf:.4f}") * settings.MAX_SCORE
+                round_score = round(float(f"{conf:.4f}") * settings.MAX_SCORE)
 
             frame = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             frame = frame.swapaxes(0, 1)
@@ -192,11 +190,13 @@ def show_round():
                 score.append(round_score)
                 globals().__setitem__("event", TOTAL_RATING)
 
-    cap.release()
 
 def main() -> None:
-    global event
+    global event, cap
     event = MAIN_MENU
+    cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     while event != QUIT:
         if event == MAIN_MENU:
             main_menu()
@@ -213,7 +213,9 @@ def main() -> None:
         elif event == TOTAL_RATING:
             show_round_results()
         ui.tick()
-
+    if cap is not None:
+        cap.release()
+    pygame.quit()
 
 if __name__ == "__main__":
     main()
