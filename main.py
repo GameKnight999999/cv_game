@@ -11,6 +11,7 @@ import ui_facade as ui
 MAIN_MENU, SETTINGS, HELP, GAME_SETUP, ROUND_SHOW_POSE, ROUND_SHOW_SCORE, TOTAL_RATING, QUIT, NULL = range(9)
 music_playing = False
 countdown_playing = False
+zero_playing = False
 score = []
 font = ui.Font()
 round_num = 0
@@ -65,18 +66,22 @@ def game_setup():
     ui.Button("continue", lambda: globals().__setitem__("event", ROUND_SHOW_POSE), 500, 800, True)
 
 def draw_timer():
-    global round_num, countdown_playing
+    global round_num, countdown_playing, zero_playing
     if font.timer_running:
         elapsed = pygame.time.get_ticks() // 1000 - font.timer_start_time
         remaining = settings.TIMER - elapsed
         if remaining == 5 and not countdown_playing:
             ui.play_sound('countdown_v2')
             countdown_playing = True
-        elif remaining <= 0:
+        if remaining == 0 and not zero_playing:
+            ui.play_sound('countdown_v1')
+            zero_playing = True
+        elif remaining < 0:
             font.end_timer()
             countdown_playing = False
+            zero_playing = False
             return
-        ui.Font.print_at(font, str(remaining), settings.FONT_SIZE, 500, 150)
+        ui.Font.print_at(font, str(remaining), settings.FONT_SIZE, 600, 150)
 
 def show_round_stats():
     global round_num, score
@@ -93,7 +98,7 @@ def show_round_results():
     if sum(score) >= settings.HIGH_SCORE:
         settings.HIGH_SCORE = sum(score)
     ui.Label(f'rounds played: {round_num}', settings.FONT_SIZE, 400, 100)
-    ui.Label(f'total score {sum(score)}', settings.FONT_SIZE, 400, 300)
+    ui.Label(f'total score: {sum(score)}', settings.FONT_SIZE, 400, 300)
     ui.Label(f'high score: {settings.HIGH_SCORE}', settings.FONT_SIZE, 400, 500)
     ui.Button('exit', lambda: globals().__setitem__("event", MAIN_MENU), 500, 800, True)
 
@@ -109,8 +114,8 @@ def show_round():
     pose_id = randint(1, 13)
 
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 900)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
     with mp_pose.Pose(
             min_detection_confidence=0.5,
@@ -123,7 +128,7 @@ def show_round():
             event_handler.tick()
             ui.clearscreen()
             draw_timer()
-            ui.Font.print_at(font, f'round: {round_num}', settings.FONT_SIZE, 450, 50)
+            ui.Font.print_at(font, f'round: {round_num}', settings.FONT_SIZE, 500, 50)
             success, image = cap.read()
             if not success:
                 print("Ignoring empty camera frame.")
@@ -146,8 +151,10 @@ def show_round():
             )
 
             pose_img = cv2.imread(os.path.sep.join((SAMPLES_PATH, f"{pose_id:02d}.jpg")))
-            pose_img = cv2.resize(pose_img, None, fx=1 / 5, fy=1 / 5)
-            image[image.shape[0] - pose_img.shape[0]:, :pose_img.shape[1]] = pose_img
+            # picture's width and height is adjusted here
+            pose_img = cv2.resize(pose_img, None, fx=1 / 3, fy=1 / 3)
+            # image[image.shape[0] - pose_img.shape[0]:, :pose_img.shape[1]] = pose_img
+            image[:pose_img.shape[0], image.shape[1] - pose_img.shape[1]:] = pose_img
 
             if results and results.pose_landmarks and results.pose_landmarks.landmark:
                 conf = check_id(
@@ -168,8 +175,7 @@ def show_round():
             frame = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             frame = frame.swapaxes(0, 1)
             surface = pygame.surfarray.make_surface(frame)
-
-            ui.screen.blit(surface, (200, 300))
+            ui.screen.blit(surface, (0, 250))
             pygame.display.flip()
         if settings.MOD == 'rounds':
             if round_num < settings.ROUNDS:

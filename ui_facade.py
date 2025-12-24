@@ -24,6 +24,15 @@ def load_image(name: str) -> pygame.SurfaceType:
         raise FileNotFoundError(message)
     return image
 
+def darken(surface: pygame.Surface, factor: float = 0.5) -> pygame.Surface:
+
+    surf = surface.copy()
+    value = int(255 * factor)
+    surf.fill((value, value, value), special_flags=pygame.BLEND_RGB_MULT)
+    return surf
+
+CURSOR_NORMAL = load_image("cursor.png")
+CURSOR_CLICK = load_image("cursor_click.png")
 
 class UIElement:
     def __init__(self) -> None:
@@ -56,7 +65,7 @@ class Font:
         self.seconds = []
         self.timer_start_time = None
 
-    def print_at(self, text: str, size: float, x: int, y: int) -> tuple:
+    def print_at(self, text: str, size: float, x: int, y: int, hovered: bool=False) -> tuple:
         """
         Prints the text with left top corner at (x, y)
 
@@ -64,6 +73,7 @@ class Font:
         :param size: Font size
         :param x: Left-top corner x coord
         :param y: Left-top corner y coord
+        :param hovered: if the text should be darkened
         """
         """
         Prints the given text on the screen and writes not available symbols in a file
@@ -85,8 +95,8 @@ class Font:
         # processing the text ig
         for symbol in text:
             if symbol in self.available_symbols:
-                # the system didn't let me save files named like :.png, etc, so i added this
-                # please don't delete or it's gonna crash :(
+                # the system didn't let me save files named like :.png, etc., so i added this
+                # please don't delete, or it's gonna crash :(
                 if symbol == '.':
                     symbol = 'dot'
                 elif symbol == ':':
@@ -101,7 +111,8 @@ class Font:
                 image = load_image(f'{symbol}.png')
                 # scale the symbol to a new size
                 image = pygame.transform.scale(image, (image.get_width() * size, image.get_height() * size))
-
+                if hovered:
+                    image = darken(image)
                 screen.blit(image, start_pos)
                 # change the x
                 start_text_pos_x += image.get_width() * size + 10
@@ -132,7 +143,7 @@ class Font:
 
 class Image(UIElement):
     """
-    Class for rendering some imges on the screen
+    Class for rendering some images on the screen
     """
 
     def __init__(self, image: pygame.SurfaceType, x: int, y: int) -> None:
@@ -182,8 +193,8 @@ class Video(Image):
         Loads and creates a video
 
         :param filename: Video file path
-        :param x: x coord of video on screen
-        :param y: y coord of video on screen
+        :param x: x coord of video on-screen
+        :param y: y coord of video on-screen
         :return: New Video object
         """
         return cls(cv2.VideoCapture(filename), x, y)
@@ -234,7 +245,9 @@ class Button(UIElement):
         Render the button to the screen
         """
         #pygame.draw.rect(screen, "green", self.rect, border_radius=5)
-        self.end_pos = self.font.print_at(self.text, settings.FONT_SIZE, self.x, self.y)
+        mouse_pos = pygame.mouse.get_pos()
+        hovered = self.rect.collidepoint(mouse_pos)
+        self.end_pos = self.font.print_at(self.text, settings.FONT_SIZE, self.x, self.y, hovered)
 
 class ButtonArrows(Button):
     """
@@ -288,15 +301,18 @@ class ButtonArrows(Button):
         setattr(settings, self.name, self.value)
 
     def render(self) -> None:
+        mouse_pos = pygame.mouse.get_pos()
         self.end_pos = self.font.print_at(self.text, settings.FONT_SIZE, self.x, self.y)
         # note: change the variables to the actual ones
         self.arrow_left = pygame.Rect(self.end_pos[0], self.end_pos[1], 70, self.height)
-        #pygame.draw.rect(screen, "green", self.arrow_left, border_radius=5)
-        self.end_pos = self.font.print_at('<', settings.FONT_SIZE, self.end_pos[0], self.end_pos[1])
+        hovered = self.arrow_left.collidepoint(mouse_pos)
+        self.end_pos = self.font.print_at('<', settings.FONT_SIZE, self.end_pos[0], self.end_pos[1], hovered)
+
         self.end_pos = self.font.print_at(str(self.value), settings.FONT_SIZE, self.end_pos[0], self.end_pos[1])
+
         self.arrow_right = pygame.Rect(self.end_pos[0], self.end_pos[1], 70, self.height)
-        #pygame.draw.rect(screen, "green", self.arrow_right, border_radius=5)
-        self.end_pos = self.font.print_at('>', settings.FONT_SIZE, self.end_pos[0], self.end_pos[1])
+        hovered = self.arrow_right.collidepoint(mouse_pos)
+        self.end_pos = self.font.print_at('>', settings.FONT_SIZE, self.end_pos[0], self.end_pos[1], hovered)
 
 class Label(UIElement):
     """
@@ -326,6 +342,11 @@ def tick(fps: float = -1) -> float:
         screen.fill('white')
     for el in ui_elements:
         el.render()
+    mouse_pos = pygame.mouse.get_pos()
+    if pygame.mouse.get_pressed()[0]:  # left mouse button
+        screen.blit(CURSOR_CLICK, mouse_pos)
+    else:
+        screen.blit(CURSOR_NORMAL, mouse_pos)
     pygame.display.flip()
     return ev.tick(fps)
 
@@ -429,6 +450,8 @@ clock = pygame.time.Clock()
 screen_width, screen_height = screen.get_size()
 ui_elements: list[UIElement] = []
 keybinds: dict[str, list[ev.Listener]] = {}
+pygame.mouse.set_visible(False)
+
 
 ev.add_event_listener(pygame.QUIT, lambda _: exit())
 ev.add_event_listener(pygame.KEYDOWN, lambda x: mute_and_unmute_music() if x.key == pygame.K_m else None)
