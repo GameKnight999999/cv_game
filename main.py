@@ -194,7 +194,9 @@ def show_round():
 def main() -> None:
     global event, cap
     event = MAIN_MENU
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)  # try 1 for external camera
+    if not cap.isOpened():
+        cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     while event != QUIT:
